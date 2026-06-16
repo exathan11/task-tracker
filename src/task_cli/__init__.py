@@ -1,10 +1,19 @@
 import argparse, json
+from pathlib import Path
+
 from .parser_actions import add_task, update_task, mark_in_progress, mark_done, delete_task, list_tasks
 from .TaskModel import Task
 
-def load_tasks() -> dict[str, list[Task]]:
-    with open("tasks.json") as f:
-        tasks = json.load(f)
+
+def load_tasks():
+    filepath = Path("tasks.json")
+    if not filepath.exists(): 
+        tasks = {"tasks": []}
+        with open("tasks.json", "w+") as f:
+            json.dump(tasks, f)
+    else:
+        with open("tasks.json") as f:
+            tasks = json.load(f)
     
     return tasks
 
@@ -43,13 +52,10 @@ def load_parsers(tasks: dict[str, list[Task]]) -> None:
     except ValueError as e:
         print(e)
 
-class Person:
-    name: str
 
 def main() -> None:
     tasks = load_tasks()
     load_parsers(tasks)
-
 
 
 if __name__ == "__main__":
