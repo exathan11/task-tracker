@@ -1,27 +1,14 @@
-import argparse
+import argparse, json
+from .parser_actions import add_task, update_task, mark_in_progress, mark_done, delete_task, list_tasks
+from .TaskModel import Task
 
-def add_task(args: argparse.Namespace) -> None:
-    print(f"Adding a new task with name {args.name}")
+def load_tasks() -> dict[str, list[Task]]:
+    with open("tasks.json") as f:
+        tasks = json.load(f)
+    
+    return tasks
 
-def update_task(args: argparse.Namespace) -> None:
-    print(f"updating task with id {args.id} with the title: {args.name}")
-
-def mark_in_progress(args: argparse.Namespace) -> None:
-    print(f"Marking {args.id} as in progress")
-
-def mark_done(args: argparse.Namespace) -> None:
-    print(f"Marking {args.id} as done")
-
-def delete_task(args: argparse.Namespace) -> None:
-    print(f"Deleting task with id {args.id}")
-
-def list_tasks(args: argparse.Namespace) -> None:
-    if (args.command):
-        print(f"The option is: {args.command}")
-    else:
-        print(f"Just list everything fam")
-
-def main() -> None:
+def load_parsers(tasks: dict[str, list[Task]]) -> None:
     parser = argparse.ArgumentParser(prog="task-cli", description="A CLI task manager")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -51,7 +38,18 @@ def main() -> None:
     list_tasks_parser.set_defaults(func=list_tasks)
 
     args = parser.parse_args()
-    args.func(args)
+    try:
+        args.func(args, tasks)
+    except ValueError as e:
+        print(e)
+
+class Person:
+    name: str
+
+def main() -> None:
+    tasks = load_tasks()
+    load_parsers(tasks)
+
 
 
 if __name__ == "__main__":
